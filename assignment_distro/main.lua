@@ -1,6 +1,10 @@
 gui = {}
 
 function love.load()
+    score = 0;
+    bestScore = 0;
+    color = 1;
+
     gridXCount = 40;
     gridYCount = 25;
 
@@ -58,6 +62,12 @@ function love.load()
         gui.timer = 0;
         gameTimer = 0;
 
+        if score > bestScore then
+            bestScore = score;
+        end
+        
+        score = 0;
+
         moveFood();       
     end
 
@@ -90,14 +100,14 @@ function love.update(dt)
             if directionQueue[1] == 'right' then
                 nextXPosition = nextXPosition + 1;
                 if nextXPosition > gridXCount then
-                    table.remove(snakeSegments);
+                    --table.remove(snakeSegments);
                     snakeAlive = false;
                 end
                 
             elseif directionQueue[1] == 'left' then
                 nextXPosition = nextXPosition - 1;
                 if nextXPosition < 1 then
-                    table.remove(snakeSegments);
+                    --table.remove(snakeSegments);
                     snakeAlive = false;
                 end
                 
@@ -106,14 +116,14 @@ function love.update(dt)
             elseif directionQueue[1] == 'down' then
                 nextYPosition = nextYPosition + 1;
                 if nextYPosition > (gridYCount + 3) then
-                    table.remove(snakeSegments);
+                    --table.remove(snakeSegments);
                     snakeAlive = false;
                 end
                 
             elseif directionQueue[1] == 'up' then
                 nextYPosition = nextYPosition - 1;
                 if nextYPosition < 4 then
-                    table.remove(snakeSegments);
+                    --table.remove(snakeSegments);
                     snakeAlive = false;
                 end
             end
@@ -134,6 +144,15 @@ function love.update(dt)
                 if snakeSegments[1].x == foodPosition.x
                 and snakeSegments[1].y == foodPosition.y then
                     moveFood();
+                    score = score + color;
+                    if score <= 10 then
+                        stage = 1
+                    elseif score <= 20 then
+                        stage = 2
+                    elseif score <= 40 then
+                        stage = 3
+                    end
+                    color = math.random(stage);
                 else
                     table.remove(snakeSegments);
                 end
@@ -169,7 +188,14 @@ function love.draw()
         drawCell(segment.x, segment.y); -- draw snake
     end
 
-    love.graphics.setColor(1, 0, 0); -- food colour
+    if color == 1 then
+        love.graphics.setColor(1, 0, 0); -- food colour
+    elseif color == 2 then
+        love.graphics.setColor(0, 1, 0);
+    else
+        love.graphics.setColor(0, 0, 1);
+    end
+
     drawCell(foodPosition.x, foodPosition.y);
     
     drawGUI();
@@ -210,8 +236,8 @@ function drawGUI()
   font = love.graphics.newFont(15); -- font size+
   love.graphics.setFont(font);
   
-  love.graphics.print("Score: " .. tostring(0), 50, 425);
-  love.graphics.print("Timer: " .. tostring(0), 270, 425);
-  love.graphics.print("Best Score: " .. tostring(0), 450, 425);
+  love.graphics.print("Score: " .. tostring(score), 50, 425);
+  love.graphics.print("Timer: " .. tostring(gui.timer), 270, 425);
+  love.graphics.print("Best Score: " .. tostring(bestScore), 450, 425);
   
   end
